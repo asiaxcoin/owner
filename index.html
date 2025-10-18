@@ -232,7 +232,7 @@
         if (receiver === '0x0000000000000000000000000000000000000000') {
           document.getElementById('receiverAddr').innerHTML = 'None';
         } else {
-          document.getElementById('receiverAddr').innerHTML = receiver.substring(0,6) + '...';
+          document.getElementById('receiverAddr').innerHTML = receiver.substring(0,16) + '...';
         }
       } catch(e) {
         console.log('Contract info error:', e);
@@ -294,3 +294,4 @@
   </script>
 </body>
 </html>
+
