@@ -4,11 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
   <title>ASIAX OWNER - Mobile UI</title>
-  <!-- Bootstrap 5 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.min.css" rel="stylesheet">
-  <!-- Font Awesome 6 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <!-- Ethers.js v5 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 
   <style>
@@ -24,7 +21,6 @@
     }
     .app { max-width: 420px; margin: 0 auto; padding: 16px; }
     
-    /* Topbar */
     .topbar {
       display: flex; justify-content: space-between; align-items: center;
       padding: 12px 16px; margin-bottom: 16px; backdrop-filter: blur(20px);
@@ -33,9 +29,6 @@
     .brand { display: flex; align-items: center; gap: 12px; }
     .custom-logo { width: 120px; height: 48px; object-fit: contain; }
     
-    .app-title { font-size: 1.2rem; font-weight: 700; background: linear-gradient(135deg, var(--accent), #00ff88); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    
-    /* Status */
     .status {
       padding: 12px; border-radius: 12px; text-align: center; font-size: 0.85rem; font-weight: 500;
       background: var(--glass); border: 1px solid rgba(255,255,255,0.1); margin-bottom: 16px;
@@ -43,7 +36,6 @@
     .status.success { background: rgba(0,255,136,0.1); color: var(--success); border-color: var(--success); }
     .status.error { background: rgba(255,71,87,0.1); color: var(--error); border-color: var(--error); }
     
-    /* Cards */
     .card-app {
       background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;
       padding: 20px; margin-bottom: 16px; backdrop-filter: blur(20px);
@@ -51,7 +43,6 @@
     }
     @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
     
-    /* Buttons */
     .btn-modern {
       border-radius: 16px; padding: 14px 20px; font-weight: 600; border: none; transition: all 0.3s;
       min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -61,7 +52,12 @@
     .btn-modern:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,212,255,0.4); }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
     
-    /* Forms */
+    .btn-home {
+      background: linear-gradient(135deg, var(--accent), #00ff88); color: #000;
+      border-radius: 12px; padding: 8px 16px; font-size: 0.85rem; font-weight: 600;
+      min-height: auto; min-width: 70px; white-space: nowrap;
+    }
+    
     .form-control {
       background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
       color: #fff; height: 48px; padding: 12px 16px; transition: all 0.3s;
@@ -69,16 +65,28 @@
     .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,255,0.2); outline: none; }
     .form-control::placeholder { color: var(--muted); }
     
-    /* Price Display */
     .price-card { text-align: center; font-size: 1.2rem; font-weight: 700; color: var(--accent); margin: 16px 0; }
     
-    /* Responsive */
-@media (max-width: 360px) { .app { padding: 12px; } .card-app { padding: 16px; } }
+    .stats-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .stat {
+      flex: 1; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.02);display: flex; flex-direction: column; gap: 6px; min-width: 120px; border: 1px solid rgba(255,255,255,0.05);
+      text-align: center;
+    }
+    .stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
+    .stat-value { font-size: 1rem; font-weight: 700; color: var(--accent); }
+    
+    .contract-info { font-size: 0.75rem; color: var(--success); word-break: break-all; }
+    
+    @media (max-width: 360px) { 
+      .app { padding: 12px; } 
+      .card-app { padding: 16px; } 
+      .stats-row { gap: 8px; }
+      .stat { padding: 10px; min-width: 100px; }
+    }
   </style>
 </head>
 <body>
   <div class="app">
-    <!-- Topbar -->
     <div class="topbar">
       <div class="brand">
         <img src="prologo.png" class="custom-logo" alt="ASIAX" />
@@ -88,47 +96,65 @@
       </button>
     </div>
 
-    <!-- Status -->
     <div id="status" class="status">Ready — Connect Owner Wallet</div>
 
-    <!-- User Address -->
     <div class="card-app">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-          <div class="small-text" style="color: var(--muted);">Owner Address</div>
+        <div style="flex: 1;">
+          <div style="color: var(--muted); font-size: 0.8rem;">Owner Address</div>
           <div id="userAddress" style="font-weight:700;font-size:1.1rem">Not Connected</div>
+        </div>
+        <button id="backHome" class="btn-home" style="display:none;">
+          <i class="fas fa-home"></i> Home
+        </button>
+      </div>
+    </div>
+
+    <!-- ✅ CONTRACT INFO CARDS -->
+    <div class="card-app">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div><div style="color: var(--muted); font-size: 0.8rem;">Contract Info</div><div style="font-weight:700">Dashboard</div></div>
+        <i class="fas fa-chart-bar" style="font-size:1.5rem;color:var(--accent)"></i>
+      </div>
+      <div class="stats-row">
+        <div class="stat">
+          <div class="stat-label">Current Price</div>
+          <div class="stat-value" id="currentPrice">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Contract AsiaX</div>
+          <div class="stat-value" id="contractAsiaX">0.00</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">USDT Receiver</div>
+          <div class="stat-value" id="receiverAddr">None</div>
         </div>
       </div>
     </div>
 
-    <!-- Price Display -->
     <div id="currentInfo" class="price-card">Loading Price...</div>
 
-    <!-- Send AsiaX Card -->
     <div class="card-app">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <div><div class="small-text">Send AsiaX</div><div style="font-weight:700">To Contract</div></div>
+        <div><div style="color: var(--muted); font-size: 0.8rem;">Send AsiaX</div><div style="font-weight:700">To Contract</div></div>
         <i class="fas fa-paper-plane" style="font-size:1.5rem;color:var(--accent)"></i>
       </div>
       <input id="asiaxAmount" type="number" class="form-control" placeholder="AsiaX Amount (100)" min="1">
       <button id="sendAsiaX" class="btn btn-modern btn-warning w-100 mt-3" disabled>📤 Send AsiaX</button>
     </div>
 
-    <!-- Set Price Card -->
     <div class="card-app">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <div><div class="small-text">Set Price</div><div style="font-weight:700">Human Rate</div></div>
+        <div><div style="color: var(--muted); font-size: 0.8rem;">Set Price</div><div style="font-weight:700">Human Rate</div></div>
         <i class="fas fa-dollar-sign" style="font-size:1.5rem;color:var(--accent)"></i>
       </div>
       <input id="humanRate" type="number" class="form-control" placeholder="1 USDT = ? (2)" min="1">
       <button id="setPrice" class="btn btn-modern btn-warning w-100 mt-3" disabled>💰 Set Price</button>
     </div>
 
-    <!-- Set Receiver Card -->
     <div class="card-app">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <div><div class="small-text">Set Receiver</div><div style="font-weight:700">USDT Address</div></div>
-        <i class="fas fa-user" style="font-size:1.5rem;color:var(--accent)"></i>
+        <div><div style="color: var(--muted); font-size: 0.8rem;">Set Receiver</div><div style="font-weight:700">USDT Address</div></div><i class="fas fa-user" style="font-size:1.5rem;color:var(--accent)"></i>
       </div>
       <input id="receiverAddress" type="text" class="form-control" placeholder="Receiver Address">
       <button id="setReceiver" class="btn btn-modern btn-warning w-100 mt-3" disabled>🏦 Set Receiver</button>
@@ -136,18 +162,29 @@
   </div>
 
   <script>
-    const CONTRACT_ADDR = '0xCA275a92B4845f3caD2995FaeC00733849C4e6D1'; // BADALO!
+    // 🚨 YE 2 LINES BADALO!
+    const CONTRACT_ADDR = '0xCA275a92B4845f3caD2995FaeC00733849C4e6D1';
     const ASIAX_ADDR = '0xe36b5223d488322fac2ddda937e5ab226e83fbbd';
 
     const abi = [
       "function setPrice(uint256 _humanRate) external",
       "function setReceiver(address _receiver) external",
       "function getHumanPrice() view returns(uint256)",
-      "function owner() view returns(address)"
+      "function owner() view returns(address)",
+      "function getReceiver() view returns(address)",
+      "function getAsiaXBalance() view returns(uint256)"
     ];
-    const erc20 = ["function transfer(address,uint256)", "function decimals() view returns(uint8)"];
+    const erc20 = [
+      "function transfer(address,uint256)", 
+      "function decimals() view returns(uint8)", 
+      "function balanceOf(address) view returns(uint256)"
+    ];
 
     let wallet, contract, asiaxContract;
+
+    function roundTo2Decimals(num) {
+      return parseFloat(num).toFixed(2);
+    }
 
     document.getElementById('connectBtn').onclick = async () => {
       if (window.ethereum) {
@@ -162,14 +199,16 @@
           
           const owner = await contract.owner();
           if (wallet.toLowerCase() !== owner.toLowerCase()) {
-            alert('❌ YE OWNER WALLET NHI HAI!');return;
+            alert('❌ YE OWNER WALLET NHI HAI!');
+            return;
           }
           
           document.getElementById('userAddress').innerHTML = wallet.substring(0,6) + '...' + wallet.substring(38);
           document.getElementById('connectLabel').innerHTML = 'Connected';
           document.getElementById('connectBtn').disabled = true;
+          document.getElementById('backHome').style.display = 'block';
           
-          loadCurrentInfo();
+          await loadContractInfo();
           document.querySelectorAll('button[disabled]').forEach(b => b.disabled = false);
           
           document.getElementById('status').innerHTML = '✅ Owner Connected!';
@@ -183,19 +222,32 @@
       }
     };
 
-    async function loadCurrentInfo() {
+    async function loadContractInfo() {
       try {
+        // Price
         const price = await contract.getHumanPrice();
+        document.getElementById('currentPrice').innerHTML = price;
         document.getElementById('currentInfo').innerHTML = '💰 1 USDT = ' + price + ' AsiaX';
+        
+        // Contract AsiaX
+        const contractBalRaw = await contract.getAsiaXBalance();
+        const contractBal = ethers.utils.formatUnits(contractBalRaw, 18);
+        document.getElementById('contractAsiaX').innerHTML = roundTo2Decimals(contractBal);
+        
+        // Receiver
+        const receiver = await contract.getReceiver();
+        if (receiver === '0x0000000000000000000000000000000000000000') {
+          document.getElementById('receiverAddr').innerHTML = 'None';
+        } else {
+          document.getElementById('receiverAddr').innerHTML = receiver.substring(0,6) + '...';
+        }
       } catch(e) {
-        document.getElementById('currentInfo').innerHTML = '❌ Price nahi set';
+        console.log('Contract info error:', e);
       }
     }
 
     document.getElementById('sendAsiaX').onclick = async () => {
-      document.getElementById('status').innerHTML = '⏳ Sending...';
-      document.getElementById('status').className = 'status';
-      try {
+      document.getElementById('status').innerHTML = '⏳ Sending...';try {
         const amt = document.getElementById('asiaxAmount').value;
         const dec = await asiaxContract.decimals();
         const units = ethers.utils.parseUnits(amt, dec);
@@ -203,6 +255,7 @@
         await tx.wait();
         document.getElementById('status').innerHTML = '✅ Sent!';
         document.getElementById('status').className = 'status success';
+        await loadContractInfo();
       } catch(e) {
         document.getElementById('status').innerHTML = '❌ ' + e.message;
         document.getElementById('status').className = 'status error';
@@ -211,14 +264,13 @@
 
     document.getElementById('setPrice').onclick = async () => {
       document.getElementById('status').innerHTML = '⏳ Setting...';
-      document.getElementById('status').className = 'status';
       try {
         const rate = document.getElementById('humanRate').value;
         const tx = await contract.setPrice(rate);
         await tx.wait();
         document.getElementById('status').innerHTML = '✅ Price Set!';
         document.getElementById('status').className = 'status success';
-        loadCurrentInfo();
+        await loadContractInfo();
       } catch(e) {
         document.getElementById('status').innerHTML = '❌ ' + e.message;
         document.getElementById('status').className = 'status error';
@@ -226,18 +278,22 @@
     };
 
     document.getElementById('setReceiver').onclick = async () => {
-      document.getElementById('status').innerHTML = '⏳ Setting Receiver...';
-      document.getElementById('status').className = 'status';
+      document.getElementById('status').innerHTML = '⏳ Setting...';
       try {
         const addr = document.getElementById('receiverAddress').value;
         const tx = await contract.setReceiver(addr);
         await tx.wait();
         document.getElementById('status').innerHTML = '✅ Receiver Set!';
         document.getElementById('status').className = 'status success';
+        await loadContractInfo();
       } catch(e) {
         document.getElementById('status').innerHTML = '❌ ' + e.message;
         document.getElementById('status').className = 'status error';
       }
+    };
+
+    document.getElementById('backHome').onclick = () => {
+      window.location.href = 'index.html'; // YE BADALO!
     };
   </script>
 </body>
